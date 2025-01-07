@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Page</title>
+    <style>
+
+body {
+    background-image: linear-gradient(to right, #DECBA4, #3E5151);
+    font-family: "Gill Sans MT", "Gill Sans", Calibri, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #fff;
+}
+
+#inputForm {
+    background-color: #5D767C;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 50px auto;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #e8dbc1;
+    
+}
+
+textarea {
+    width: 95%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    background-color: #4C5C6A;
+    color:#ebe9d7; /* Changed font color */
+    font-family: "Gill Sans MT", "Gill Sans", Calibri, sans-serif;/* Changed font */
+    font-size: 18px;
+    height: 100px;
+}
+
+#numberSelect {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    background-color: #4C5C6A;
+    color: #ebe9d7; /* Changed font color */
+    font-family: "Gill Sans MT", "Gill Sans", Calibri, sans-serif; /* Changed font */
+    font-size: 15px;
+    
+}
+
+button {
+    background-color: #DECBA4;
+    color: #3E5151;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    font-family: "Gill Sans MT", "Gill Sans", Calibri, sans-serif;
+    padding: 15px 25px; /* Changed font */
+    font-size: 15px;
+}
+
+button:hover {
+    background-color: #3E5151;
+}
+
+h1 {
+    text-align: center;
+    background: -webkit-linear-gradient( #0b0e0e , hsl(40, 14%, 25%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+    margin-bottom: 30px;
+}
+ 
+
+
+    </style>
+</head>
+<body>
+    <h1>Crossword Cove: Cracking Clues for Fun!</h1>
+    <form id="inputForm">
+        <label for="textInput">Your Text:</label><br>
+        <textarea id="textInput" rows="4" cols="50"></textarea><br>
+        <label for="numberSelect">Number of Words:</label><br>
+
+        <select id="numberSelect">
+            <!-- Options will be dynamically added here -->
+        </select><br>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        // Function to populate the number select dropdown
+        function populateNumberSelect() {
+            var numberSelect = document.getElementById('numberSelect');
+            for (var i = 1; i <= 15; i++) {
+                var option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                numberSelect.appendChild(option);
+            }
+            
+        }
+
+        populateNumberSelect();
+        // Function to handle form submission
+        document.getElementById('inputForm').addEventListener('submit', function(event) {
+
+            event.preventDefault();
+
+            var textInput = document.getElementById('textInput').value;
+            var numberSelect = document.getElementById('numberSelect').value;
+
+            var dataToSend = {
+                'text_input': textInput,
+                'selected_number': numberSelect
+            };
+            
+            fetch('http://localhost:5000/process_input', {
+                method: 'POST',
+                
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(dataToSend),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Data to be saved:', data.sampleGridData);
+                
+                
+
+                localStorage.setItem('sampleGridData', JSON.stringify(data.sampleGridData));
+                localStorage.setItem('sampleWords', JSON.stringify(data.sampleWords));
+                localStorage.setItem('wordCount', JSON.stringify(data.wordCount));
+                // Redirect to next page
+                window.location.href = 'puzzle.html'
+            })
+            
+            //.then(window.location.href = 'puzzle.html')
+            .catch(error => console.error('Error:', error));
+            
+        });
+
+
+        // Call the function to populate the number select dropdown on page load
+        
+    </script>
+</body>
+</html>

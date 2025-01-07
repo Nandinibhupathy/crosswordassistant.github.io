@@ -1,0 +1,7 @@
+llama-cpp-python
+num2words
+flask
+flask-cors
+
+
+Blood is a vital fluid in our bodies, composed mainly of plasma and various types of cells. Plasma, the liquid part, carries nutrients and waste. Red blood cells transport oxygen, powered by the pigment hemoglobin, giving blood its red color. White blood cells are immune system defenders, combating infections. Platelets aid in clotting, preventing excessive bleeding. Blood vessels, including arteries, veins, and capillaries, distribute blood throughout the body. The heart pumps blood through these vessels, ensuring oxygenation and waste removal. Valves maintain one-way blood flow, generating the heartbeat's characteristic sound. The pulmonary circuit connects the heart and lungs for oxygenation. Pulse, felt in arteries, reflects heartbeats per minute. In the excretory system, waste removal occurs via kidneys, which filter blood, producing urine. Ureters transport urine to the bladder, where it's stored and expelled through the urethra. Dialysis substitutes kidney function when necessary. In plants, transportation happens through osmosis, root hairs increasing surface area for water absorption, and vascular tissues (phloem and xylem) distributing nutrients and water. Transpiration, loss of water vapor through leaves, aids in water absorption and distribution.

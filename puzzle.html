@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grid with Words</title>
+    <style>
+        body {
+    background-image: linear-gradient(to right, hsl(40, 47%, 76%), #3E5151);
+    font-family: "Gill Sans MT", "Gill Sans", Calibri, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #fff;
+}
+
+table {
+    border-collapse: collapse;
+    margin: 20px auto;
+ /* Increased height */
+}
+
+
+
+
+
+td {
+    width: 40px; /* Increased width */
+    height: 40px; /* Increased height */
+    border: 1px solid rgb(24, 1, 1);
+    text-align: center;
+    cursor: pointer;
+    background-color: hsl(39, 16%, 65%);
+    color: black;
+    font-size: 20px; /* Increased font size */
+}
+
+td.black {
+    background-color:#3E5151;
+    cursor: default;
+}
+
+.selected {
+    background-color: rgb(116, 116, 98) !important;
+}
+
+button {
+    background-color: #DECBA4;
+    color: #3E5151;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px; /* Increased padding */
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    font-family: "Gill Sans MT", "Gill Sans", Calibri, sans-serif;
+    font-size: 17px; /* Increased font size */
+}
+
+button:hover {
+    background-color: #3E5151;
+}
+
+#wordSelect {
+    width: 20%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    background-color: #4C5C6A;
+    color:  #f6ead2;
+    font-family: "Gill Sans MT", "Gill Sans", Calibri, sans-serif;
+    font-size: 20px; /* Increased font size */
+    
+}
+
+.container {
+    position: relative; /* This is crucial for absolute positioning to work correctly */
+    width: 100%; /* Adjust as needed */
+    height: 100%; /* Adjust as needed */
+}
+
+#timerContainer, #attemptContainer, #scoreContainer, #mistakeContainer {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 18px; /* Increased font size */
+    color:  #DECBA4;
+    padding: 10px; /* Add padding for better spacing inside the box */
+    background-color: #4C5C6A; /* Background color for the box */
+    box-shadow: inset 0 0 0 2px #DECBA4; /* Inner border effect */
+    border-radius: 5px; /* Optional: Adds rounded corners to the box */
+}
+
+#attemptContainer {
+    top: 200px;
+}
+
+#scoreContainer {
+    top: 250px;
+}
+
+#mistakeContainer {
+    top: 300px;
+}
+h1
+{
+    text-align:center;
+    background: -webkit-linear-gradient( #0b0e0e , hsl(40, 14%, 25%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+
+label
+{
+    color:  #23303b;
+    font-size : 20px;
+    font-weight: bold;
+    
+}
+
+
+
+
+        #startBtn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        #pauseBtn {
+            position: absolute;
+            top: 10px;
+            right: 110px; /* Adjusted position */
+            display: none; /* Initially hidden */
+        }
+        #timerContainer {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+        }
+
+    
+        #responseContainer {
+            display: flex;
+            justify-content: center;
+            width: 100%; /* Specify a width */
+    margin: 0 auto; /* Center horizontally */
+    font-size: 24px;
+    color: #2d363c;
+    font-weight: bold;
+
+}
+
+#popupContainer {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* semi-transparent background */
+    z-index: 999; /* ensure it's on top of other elements */
+}
+
+#popup {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color:#3E5151;
+    color:  #DECBA4;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+#closePopupBtn {
+    background-color: #ccc;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+        
+    </style>
+</head>
+<body>
+    <h1>Crossword Cove: Cracking Clues for Fun!</h1>
+    <div>
+        <button id="startBtn">Start</button>
+        <button id="pauseBtn">Pause</button>
+        <label for="wordSelect" >Pick your word:</label>
+        <select id="wordSelect">
+            <!-- Options will be dynamically added here -->
+        </select>
+        <button id="placeWordBtn">Place Word</button>
+        <button id="removeWordBtn">Remove Word</button>
+    </div>
+    <div>
+        
+        <table id="grid"></table>
+    </div>
+
+    <div id="responseContainer"></div>
+    <div id="timerContainer"></div>
+    <div id="attemptContainer" style="position: absolute; top: 150px; right: 10px; font-size: 18px;">Attempts: 0</div>
+    <div id="scoreContainer" style="position: absolute; top: 200px; right: 10px; font-size: 18px;"></div>
+    <div id="mistakeContainer" style="position: absolute; top: 250px; right: 10px; font-size: 18px;"></div>
+    <div id="popupContainer">
+        <div id="popup">
+            <span id="popupContent"></span>
+            <button id="closePopupBtn">Close</button>
+        </div>
+    </div>
+    
+    <script>
+
+var gameStarted = false;
+var timerInterval; // Declare timerInterval variable globally
+var pauseBtn = document.getElementById('pauseBtn');
+var paused=false;
+var gamePausedTime=0;
+var attempt_scores=[]
+// Disable elements initially
+document.getElementById('timerContainer').style.display = 'none';
+
+document.getElementById('wordSelect').disabled = true;
+document.getElementById('placeWordBtn').disabled = true;
+document.getElementById('removeWordBtn').disabled = true;
+
+// Start button event listener
+document.getElementById('startBtn').addEventListener('click', function() {
+    if (!gameStarted) {
+        startGame();
+        gameStarted = true;
+        this.style.display = 'none';// Change button text to "Restart" after game started
+        ///document.getElementById('startBtn').style.display = 'none';
+        
+        pauseBtn.style.display = 'inline-block';
+        document.getElementById('timerContainer').style.display = 'block';
+
+    } else {
+        resetPuzzle(); // Restart game
+    }
+});
+
+
+pauseBtn.addEventListener('click', function() {
+    if (!paused) {
+        clearInterval(timerInterval); // Pause the timer
+        paused = true;
+        this.textContent = 'Resume'; // Change button text to "Resume"
+
+        gamePausedTime = Date.now();
+
+        // Disable place word and remove word buttons
+        document.getElementById('placeWordBtn').disabled = true;
+        document.getElementById('removeWordBtn').disabled = true;
+        document.getElementById('wordSelect').disabled = true;
+    } else {
+        startGame(); // Resume the game
+        paused = false;
+        this.textContent = 'Pause'; // Change button text back to "Pause"
+       
+        var remainingTime = gamePausedTime - startTime;
+
+        // Adjust start time by subtracting the paused time
+        startTime = Date.now() - remainingTime;
+       
+        // Enable place word and remove word buttons
+        document.getElementById('placeWordBtn').disabled = false;
+        document.getElementById('removeWordBtn').disabled = false;
+        document.getElementById('wordSelect').disabled = false;
+    }
+});
+
+// Function to start the game
+function startGame() {
+    // Enable elements
+    document.getElementById('wordSelect').disabled = false;
+    document.getElementById('placeWordBtn').disabled = false;
+    document.getElementById('removeWordBtn').disabled = false;
+
+    // Start the timer
+    if(!paused)
+    {
+    startTime = Date.now();
+    updateTimer(); // Update timer display
+    timerInterval = setInterval(updateTimer, 1000); 
+    }// Call updateTimer every second
+}
+
+
+
+
+        var selectedCells = [];
+        var isRightClick = false;
+
+        document.getElementById('grid').addEventListener('click', function(event) {
+            event.preventDefault();
+            if (event.target.tagName === 'TD') {
+                selectAdjacentBoxes(event.target, false);
+            }
+        });
+
+        document.getElementById('grid').addEventListener('contextmenu', function(event) {
+            event.preventDefault();
+            isRightClick = true;
+            if (event.target.tagName === 'TD') {
+                selectAdjacentBoxes(event.target, true);
+            }
+        });
+
+        document.getElementById('grid').addEventListener('mousedown', function(event) {
+            if (event.button === 2) {
+                isRightClick = true;
+            } else {
+                isRightClick = false;
+            }
+        });
+
+        document.getElementById('placeWordBtn').addEventListener('click', function() {
+            var wordSelect = document.getElementById('wordSelect');
+            var selectedWord = wordSelect.options[wordSelect.selectedIndex].text;
+            if (selectedCells.length === selectedWord.length) {
+                placeWord(selectedWord);
+
+            } else {
+                alert('Please select a word of appropriate length.');
+            }
+
+                
+            
+
+        });
+
+        document.getElementById('removeWordBtn').addEventListener('click', function() {
+            removeWord();
+        });
+
+        function selectAdjacentBoxes(cell, vertical) {
+            var rowIndex = cell.parentNode.rowIndex;
+            var cellIndex = cell.cellIndex;
+            var grid = document.getElementById('grid');
+
+            selectedCells.forEach(selectedCell => {
+                selectedCell.classList.remove('selected');
+            });
+
+            selectedCells = [cell];
+            cell.classList.add('selected');
+
+            if (vertical || isRightClick) {
+                // Select vertically adjacent boxes
+                for (var i = rowIndex - 1; i >= 0; i--) {
+                    var adjacentCell = grid.rows[i].cells[cellIndex];
+                    if (adjacentCell.classList.contains('black')) {
+                        break;
+                    }
+                    selectedCells.unshift(adjacentCell);
+                    adjacentCell.classList.add('selected');
+                }
+                for (var i = rowIndex + 1; i < grid.rows.length; i++) {
+                    var adjacentCell = grid.rows[i].cells[cellIndex];
+                    if (adjacentCell.classList.contains('black')) {
+                        break;
+                    }
+                    selectedCells.push(adjacentCell);
+                    adjacentCell.classList.add('selected');
+                }
+            } else {
+                // Select horizontally adjacent boxes
+                for (var i = cellIndex - 1; i >= 0; i--) {
+                    var adjacentCell = grid.rows[rowIndex].cells[i];
+                    if (adjacentCell.classList.contains('black')) {
+                        break;
+                    }
+                    selectedCells.unshift(adjacentCell);
+                    adjacentCell.classList.add('selected');
+                }
+                for (var i = cellIndex + 1; i < grid.rows[rowIndex].cells.length; i++) {
+                    var adjacentCell = grid.rows[rowIndex].cells[i];
+                    if (adjacentCell.classList.contains('black')) {
+                        break;
+                    }
+                    selectedCells.push(adjacentCell);
+                    adjacentCell.classList.add('selected');
+                }
+            }
+        }
+
+        var current_state = []; // Initialize current_state list
+
+        function placeWord(word) {
+    var startCell = selectedCells[0];
+    var endCell = selectedCells[selectedCells.length - 1];
+    var rowIndex = startCell.parentNode.rowIndex;
+    var columnIndex = startCell.cellIndex;
+
+    var orientation = (selectedCells.length > 1 && startCell.parentNode === endCell.parentNode) ? 0 : 1;
+
+    // Check if the word can be placed
+    var canPlaceWord = true;
+    selectedCells.forEach((cell, index) => {
+        if (cell.textContent && cell.textContent !== word[index]) {
+            // If the cell already has a different letter, cannot place the word
+            canPlaceWord = false;
+        }
+    });
+
+    if (!canPlaceWord) {
+        alert("This word cannot be placed because some cells already contain different letters.");
+        return;
+    }
+
+    // Add word placement information to current_state list
+    current_state.push([word, rowIndex, columnIndex, orientation]);
+
+    // Update grid cells with the word
+    selectedCells.forEach((cell, index) => {
+        cell.textContent = word[index];
+    });
+
+    // Clear selection and remove 'selected' class
+    selectedCells = [];
+    var gridCells = document.querySelectorAll('#grid td');
+    gridCells.forEach(cell => {
+        cell.classList.remove('selected');
+    });
+
+    // Remove the placed word from the dropdown list
+    var wordSelect = document.getElementById('wordSelect');
+    var selectedIndex = wordSelect.selectedIndex;
+    if (selectedIndex !== -1) {
+        wordSelect.remove(selectedIndex);
+    }
+
+    sendDataToPython();
+}
+
+
+function removeWord() {
+    var removedWord = selectedCells.map(cell => cell.textContent).join('');
+
+    // Check if all selected cells contain letterss
+    var allCellsContainLetters = selectedCells.every(cell => cell.textContent.trim() !== '');
+
+    // If not all selected cells contain letters, display an alert and return
+    if (!allCellsContainLetters) {
+        alert('Please select a word to remove.');
+        return;
+    }
+
+
+    // Remove word from current_state list
+    current_state = current_state.filter(wordInfo => wordInfo[0] !== removedWord);
+
+    // Clear grid cells containing the removed word
+    selectedCells.forEach(cell => {
+        // Check if the cell intersects with other words
+        var intersectsWithOtherWords = current_state.some(wordInfo => {
+            var word = wordInfo[0];
+            var rowIndex = wordInfo[1];
+            var columnIndex = wordInfo[2];
+            var orientation = wordInfo[3];
+
+            // Check if the cell is part of the intersecting word
+            if (orientation === 0 && rowIndex === cell.parentNode.rowIndex && columnIndex <= cell.cellIndex && cell.cellIndex < columnIndex + word.length) {
+                return true;
+            } else if (orientation === 1 && columnIndex === cell.cellIndex && rowIndex <= cell.parentNode.rowIndex && cell.parentNode.rowIndex < rowIndex + word.length) {
+                return true;
+            }
+            return false;
+        });
+
+        if (!intersectsWithOtherWords) {
+            // If the cell doesn't intersect with other words, clear it
+            cell.textContent = '';
+        }
+    });
+
+    // Clear selection and remove 'selected' class
+    selectedCells = [];
+    var gridCells = document.querySelectorAll('#grid td');
+    gridCells.forEach(cell => {
+        cell.classList.remove('selected');
+    });
+
+    // Add the removed word back to the dropdown list
+    var wordSelect = document.getElementById('wordSelect');
+    var option = document.createElement('option');
+    option.value = removedWord;
+    option.textContent = removedWord;
+    wordSelect.appendChild(option);
+
+    sendDataToPython();
+}
+
+
+function sendDataToPython() {
+    
+            var dataToSend = {
+                'current_state': current_state  // Your data here
+            };
+            //http://localhost:5000
+            
+            fetch('http://localhost:5000/send_data', {
+                method: 'POST',
+                
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(dataToSend),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message,data.if_update_score)
+                
+                if(data.if_update_score !=-1)
+                {
+                    updateScore(data.if_update_score);
+                }
+                else
+                {
+                    updateMistakes(mistakes+1);
+                }
+                displayResponse(data.message)
+            })
+            
+            //.then(window.location.href = 'puzzle.html')
+            .catch(error => console.error('Error:', error));
+            
+        }
+
+
+document.getElementById('closePopupBtn').addEventListener('click', function() {
+    document.getElementById('popupContainer').style.display = 'none'; // Hide the popup when close button is clicked
+});
+
+function displayResponse(response) {
+
+    var responseContainer = document.getElementById('responseContainer');
+    responseContainer.innerHTML = ''; // Clear previous content
+    var paragraph = document.createElement('p');
+    paragraph.textContent = JSON.stringify(response).replace(/"/g, '');
+    responseContainer.appendChild(paragraph);
+
+    if(response=='Puzzle Completed')
+    {
+        clearInterval(timerInterval); // Pause the timer
+        paused = true;
+        this.textContent = 'Resume'; // Change button text to "Resume"
+
+        gamePausedTime = Date.now();
+
+        // Disable place word and remove word buttons
+        document.getElementById('placeWordBtn').disabled = true;
+        document.getElementById('removeWordBtn').disabled = true;
+        document.getElementById('wordSelect').disabled = true;
+
+        paragraph.textContent = 'Puzzle conquered! 🎉';
+
+        var timerText = document.getElementById('timerContainer').textContent;
+
+        // Split the text content by ':'
+        var timeValues = timerText.split(':');
+
+        // Convert each split value to an integer
+        var integerTimeValues = timeValues.map(function(value) {
+        return parseInt(value, 10);
+        });
+        minute=integerTimeValues[0]
+        second=integerTimeValues[1]
+        let accuracy=0.7*(score/wordCount)+0.3*((wordCount*45/(minute*60+second))/60)
+        
+        attempt_scores.push(accuracy.toFixed(4))
+        console.log("accuracy : " + accuracy+","+minute+":"+second+","+score)
+
+
+        // Display the popup after 3 seconds
+        setTimeout(function() {
+            var popupContainer = document.getElementById('popupContainer');
+            var popupContent = document.getElementById('popupContent');
+            popupContent.innerHTML = ''; // Clear previous content
+            
+            var scoreParagraph = document.createElement('p');
+                scoreParagraph.textContent = "Score Board";
+                popupContent.appendChild(scoreParagraph);
+            // Iterate over each attempt score and create a <p> element for it
+            attempt_scores.forEach(function(score,i) {
+                var scoreParagraph = document.createElement('p');
+                scoreParagraph.textContent = "Attempt "+(i+1)+" : "+score;
+                popupContent.appendChild(scoreParagraph);
+            });
+            popupContainer.style.display = 'block'; // Show the popup
+
+
+            
+        }, 1500);
+
+        
+    }
+
+}
+
+
+function displayGrid(gridData) {
+            var gridContainer = document.getElementById('grid');
+            gridContainer.innerHTML = ''; // Clear previous grid
+
+            gridData.forEach(row => {
+                var tr = document.createElement('tr');
+                row.forEach(cell => {
+                    var td = document.createElement('td');
+                    if (cell === 0) {
+                        td.classList.add('black');
+                    }
+                    tr.appendChild(td);
+                });
+                gridContainer.appendChild(tr);
+            });
+        }
+
+        function populateWordSelect(words) {
+            var wordSelect = document.getElementById('wordSelect');
+            wordSelect.innerHTML = ''; // Clear previous options
+
+            words.forEach(word => {
+                var option = document.createElement('option');
+                option.value = word;
+                option.textContent = word;
+                wordSelect.appendChild(option);
+            });
+        }
+
+          // Inside the <script> tag in your HTML file
+
+        // Timer variables
+        var timerContainer = document.getElementById('timerContainer');
+        var startTime = Date.now();
+        var timerInterval;
+
+        var wordCount =JSON.parse(localStorage.getItem('wordCount'));
+        // Score and mistake count variables
+        var scoreContainer = document.getElementById('scoreContainer');
+        var mistakeContainer = document.getElementById('mistakeContainer');
+        var score = 0;
+        var mistakes = 0;
+        var maxMistakes = (3 > Math.round(wordCount/4))? 3 : Math.round(wordCount/4)
+        console.log("maxmis :",maxMistakes , wordCount)
+        // Update timer function
+
+        
+        function updateTimer() {
+            if (gameStarted && !paused)
+            {
+                var currentTime = Date.now();
+                var elapsedTime = Math.floor((currentTime - startTime) / 1000); // in seconds
+                var minutes = Math.floor(elapsedTime / 60);
+                var seconds = elapsedTime % 60;
+                document.getElementById('timerContainer').textContent = padTime(minutes) + ':' + padTime(seconds);
+            }
+        }
+
+        // Pad time with leading zeros if needed
+        function padTime(time) {
+            return (time < 10 ? '0' : '') + time;
+        }
+
+        // Update score function
+        function updateScore(newScore) {
+            score = newScore;
+            scoreContainer.textContent = 'Score: ' + score + "/"+wordCount;
+        }
+
+        // Update mistake count function
+        function updateMistakes(newMistakes) {
+            mistakes = newMistakes;
+            mistakeContainer.textContent = 'Mistakes: ' + mistakes +"/"+maxMistakes;
+
+            if (mistakes >  maxMistakes) {
+                resetPuzzle();
+            }
+        }
+
+        var attemptCount = 1;
+        var score = 0;
+        var mistakes = 0;
+
+        // Get containers for attempts, score, and mistake count
+        var attemptContainer = document.getElementById('attemptContainer');
+        var scoreContainer = document.getElementById('scoreContainer');
+        var mistakeContainer = document.getElementById('mistakeContainer');
+
+        // Update containers with initial values
+        attemptContainer.textContent = 'Attempts: ' + attemptCount;
+        scoreContainer.textContent = 'Score: ' + score + "/"+wordCount;
+        mistakeContainer.textContent = 'Mistakes: ' + mistakes+"/"+maxMistakes;
+        
+
+    // Function to reset the puzzle
+function resetPuzzle() {
+    var timerText = document.getElementById('timerContainer').textContent;
+
+    // Split the text content by ':'
+    var timeValues = timerText.split(':');
+
+    // Convert each split value to an integer
+    var integerTimeValues = timeValues.map(function(value) {
+    return parseInt(value, 10);
+    });
+    minute=integerTimeValues[0]
+    second=integerTimeValues[1]
+    //acc=wt*score/total_score + weight_for_time*(mmax_time/time_taken) //max_time is 45 sec for a word
+    let accuracy=0.7*(score/wordCount)+0.3*((wordCount*45/(minute*60+second))/60)
+    attempt_scores.push(accuracy.toFixed(4))
+    console.log("accuracy : " + accuracy)
+
+    clearInterval(timerInterval); 
+
+    startTime = Date.now(); // Reset timer
+    updateTimer(); // Update timer display
+
+    // Clear grid cells
+    var gridCells = document.querySelectorAll('#grid td');
+    gridCells.forEach(cell => {
+        cell.textContent = '';
+    });
+
+
+    var responseContainer = document.getElementById('responseContainer');
+    responseContainer.innerHTML = '';
+
+    // Add removed words back to dropdown
+    var wordSelect = document.getElementById('wordSelect');
+    current_state.forEach(wordInfo => {
+        var option = document.createElement('option');
+        option.value = wordInfo[0];
+        option.textContent = wordInfo[0];
+        wordSelect.appendChild(option);
+    });
+
+    // Clear current_state
+    current_state = [];
+
+    // Reset mistakes, score, and attempt count
+    mistakes = 0;
+    score = 0;
+    attemptCount++;
+    
+    // Update display
+    document.getElementById('attemptContainer').textContent = 'Attempts: ' + attemptCount;
+    updateMistakes(mistakes);
+    updateScore(score);
+
+    // Disable elements
+    document.getElementById('wordSelect').disabled = true;
+    document.getElementById('placeWordBtn').disabled = true;
+    document.getElementById('removeWordBtn').disabled = true;
+
+    // Reset gameStarted flag
+    gameStarted = false;
+    document.getElementById('startBtn').textContent = 'Start'; // Change button text back to "Start"
+    document.getElementById('startBtn').style.display = 'inline-block'; // Show start button
+    pauseBtn.style.display = 'none'; // Hide pause button
+
+    // Reset timer display
+    document.getElementById('timerContainer').style.display = 'none';
+}
+
+
+        // Call updateTimer every second
+        timerInterval = setInterval(updateTimer, 1000);
+
+
+        
+        //console.log(sampleGridData,"words :",sampleWords)
+        //var sampleGridData =[[1,1,1],[0,1,0],[0,1,1]]
+        //var sampleWords = ['fat','ate','el']
+        
+
+        var sampleGridData =JSON.parse(localStorage.getItem('sampleGridData'));
+        var sampleWords =JSON.parse(localStorage.getItem('sampleWords'));
+        
+        //var sampleWords = JSON.parse(sampleWords_json);
+        
+       
+        //var sampleWords = ['mistress', 'camel', 'worship', 'snickers', 'symposium', 'lime', 'pitch', 'plague', 'lip', 'pista', 'pigeon', 'conda', 'coral', 'dawn'];
+
+        populateWordSelect(sampleWords);
+        displayGrid(sampleGridData);
+    </script>
+</body>
+</html>
+
+
+
+
+        
+<!--
+ Sample grid and words data
+/* var sampleGridData = grid =[
+[1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1],
+[1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1],
+[1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0],
+[1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0],
+[1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0],
+[1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0],
+[1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0],
+[0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1],
+[0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1],
+[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
+[0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+] 
